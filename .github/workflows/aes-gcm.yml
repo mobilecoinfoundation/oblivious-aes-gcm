@@ -5,11 +5,7 @@ on:
     paths:
       - "**"
   push:
-    branches: master
-
-defaults:
-  run:
-    working-directory: aes-gcm
+    branches: develop
 
 env:
   CARGO_INCREMENTAL: 0
