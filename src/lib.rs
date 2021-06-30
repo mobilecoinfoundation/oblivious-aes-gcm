@@ -32,8 +32,8 @@
 //! Simple usage (allocating, no associated data):
 //!
 //! ```
-//! use aes_gcm::{Aes256Gcm, Key, Nonce}; // Or `Aes128Gcm`
-//! use aes_gcm::aead::{Aead, NewAead};
+//! use mc_oblivious_aes_gcm::{Aes256Gcm, Key, Nonce}; // Or `Aes128Gcm`
+//! use mc_oblivious_aes_gcm::aead::{Aead, NewAead};
 //!
 //! let key = Key::from_slice(b"an example very very secret key.");
 //! let cipher = Aes256Gcm::new(key);
@@ -67,9 +67,9 @@
 //! ```
 //! # #[cfg(feature = "heapless")]
 //! # {
-//! use aes_gcm::{Aes256Gcm, Key, Nonce}; // Or `Aes128Gcm`
-//! use aes_gcm::aead::{AeadInPlace, NewAead};
-//! use aes_gcm::aead::heapless::Vec;
+//! use mc_oblivious_aes_gcm::{Aes256Gcm, Key, Nonce}; // Or `Aes128Gcm`
+//! use mc_oblivious_aes_gcm::aead::{AeadInPlace, NewAead};
+//! use mc_oblivious_aes_gcm::aead::heapless::Vec;
 //!
 //! let key = Key::from_slice(b"an example very very secret key.");
 //! let cipher = Aes256Gcm::new(key);
