@@ -106,9 +106,7 @@
 
 mod ct;
 
-pub use ct::CtAeadDecrypt;
-pub use ct::CtDecryptResult;
-
+pub use crate::ct::{CtAeadDecrypt, CtDecryptResult};
 pub use aead::{self, AeadCore, AeadInPlace, Error, NewAead};
 
 #[cfg(feature = "aes")]
