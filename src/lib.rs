@@ -99,11 +99,15 @@
 #![no_std]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![doc(
-    html_logo_url = "https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg",
-    html_favicon_url = "https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg"
+    html_logo_url = "https://avatars.githubusercontent.com/u/73257032?s=400&u=6b0eb2dc706116234b190b40f3cbbf82c3e9118b&v=4"
 )]
 #![deny(unsafe_code)]
 #![warn(missing_docs, rust_2018_idioms)]
+
+mod ct;
+
+pub use ct::CtAeadDecrypt;
+pub use ct::CtDecryptResult;
 
 pub use aead::{self, AeadCore, AeadInPlace, Error, NewAead};
 
