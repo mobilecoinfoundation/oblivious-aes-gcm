@@ -1,4 +1,4 @@
-name: aes-gcm
+name: mc-oblivious-aes-gcm
 
 on:
   pull_request:
