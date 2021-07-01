@@ -2,13 +2,14 @@
 
 use crate::{AesGcm, Tag, A_MAX, C_MAX};
 use aead::AeadInPlace;
-use cipher::{
-    consts::U16,
-    generic_array::{ArrayLength, GenericArray},
-    Block, BlockCipher, StreamCipher,
-};
+use cipher::{consts::U16, generic_array::{ArrayLength, GenericArray}, Block, BlockCipher, StreamCipher, BlockEncrypt};
 use subtle::{Choice, ConditionallySelectable, ConstantTimeEq};
 use zeroize::Zeroize;
+
+#[cfg(all(feature = "alloc", not(feature = "std")))]
+use alloc::vec::Vec;
+
+use aes::NewBlockCipher;
 
 /// API for Aead in-place decryption which is constant-time with respect to
 /// the mac check failing
@@ -69,7 +70,7 @@ impl From<CtDecryptResult> for bool {
 
 impl<Aes, NonceSize> CtAeadDecrypt for AesGcm<Aes, NonceSize>
 where
-    Aes: BlockCipher<BlockSize = U16>,
+    Aes: BlockCipher<BlockSize = U16> + BlockEncrypt + NewBlockCipher,
     Aes::ParBlocks: ArrayLength<Block<Aes>>,
     NonceSize: ArrayLength<u8>,
 {
@@ -92,9 +93,8 @@ where
         // See: <https://github.com/RustCrypto/AEADs/issues/74>
         let mut expected_tag = self.compute_tag(associated_data, buffer);
         let mut ctr = self.init_ctr(nonce);
-        let mut ciphertext = vec![0u8; len];
-
-        ciphertext.copy_from_slice(&buffer);
+        let mut ciphertext = Vec::with_capacity(len);
+        ciphertext.extend_from_slice(buffer);
 
         ctr.apply_keystream(expected_tag.as_mut_slice());
         ctr.apply_keystream(&mut ciphertext);
