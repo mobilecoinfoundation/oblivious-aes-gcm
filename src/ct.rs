@@ -2,7 +2,11 @@
 
 use crate::{AesGcm, Tag, A_MAX, C_MAX};
 use aead::AeadInPlace;
-use cipher::{consts::U16, generic_array::{ArrayLength, GenericArray}, Block, BlockCipher, StreamCipher, BlockEncrypt};
+use cipher::{
+    consts::U16,
+    generic_array::{ArrayLength, GenericArray},
+    Block, BlockCipher, BlockEncrypt, StreamCipher,
+};
 use subtle::{Choice, ConditionallySelectable, ConstantTimeEq};
 use zeroize::Zeroize;
 
