@@ -76,7 +76,7 @@ jobs:
           target: ${{ matrix.target }}
           override: true
           profile: minimal
-      - run: cargo build --all-features --release --target ${{ matrix.target }}
+      - run: cargo build --no-default-features --release --target ${{ matrix.target }}
 
   test:
     runs-on: ubuntu-latest

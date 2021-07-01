@@ -104,7 +104,7 @@
 #![deny(unsafe_code)]
 #![warn(missing_docs, rust_2018_idioms)]
 
-#[cfg(all(feature = "alloc", not(feature = "std")))]
+#[cfg(all(feature = "zeroize", feature = "alloc", not(feature = "std")))]
 extern crate alloc;
 
 #[cfg(all(feature = "zeroize", any(feature = "alloc", feature = "std")))]
