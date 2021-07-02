@@ -96,14 +96,22 @@
 //! [3]: https://research.nccgroup.com/2020/02/26/public-report-rustcrypto-aes-gcm-and-chacha20poly1305-implementation-review/
 //! [4]: https://www.mobilecoin.com/
 
-#![no_std]
+#![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![doc(
-    html_logo_url = "https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg",
-    html_favicon_url = "https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg"
+    html_logo_url = "https://avatars.githubusercontent.com/u/73257032?s=400&u=6b0eb2dc706116234b190b40f3cbbf82c3e9118b&v=4"
 )]
 #![deny(unsafe_code)]
 #![warn(missing_docs, rust_2018_idioms)]
+
+#[cfg(all(feature = "zeroize", feature = "alloc", not(feature = "std")))]
+extern crate alloc;
+
+#[cfg(all(feature = "zeroize", any(feature = "alloc", feature = "std")))]
+mod ct;
+
+#[cfg(all(feature = "zeroize", any(feature = "alloc", feature = "std")))]
+pub use crate::ct::{CtAeadDecrypt, CtDecryptResult};
 
 pub use aead::{self, AeadCore, AeadInPlace, Error, NewAead};
 
