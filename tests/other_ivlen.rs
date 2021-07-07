@@ -6,7 +6,7 @@
 #[macro_use]
 extern crate hex_literal;
 
-use aes_gcm::{
+use mc_oblivious_aes_gcm::{
     aead::{
         generic_array::{typenum, GenericArray},
         Aead, NewAead,

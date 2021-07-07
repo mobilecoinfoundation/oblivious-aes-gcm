@@ -32,8 +32,8 @@
 //! Simple usage (allocating, no associated data):
 //!
 //! ```
-//! use aes_gcm::{Aes256Gcm, Key, Nonce}; // Or `Aes128Gcm`
-//! use aes_gcm::aead::{Aead, NewAead};
+//! use mc_oblivious_aes_gcm::{Aes256Gcm, Key, Nonce}; // Or `Aes128Gcm`
+//! use mc_oblivious_aes_gcm::aead::{Aead, NewAead};
 //!
 //! let key = Key::from_slice(b"an example very very secret key.");
 //! let cipher = Aes256Gcm::new(key);
@@ -67,9 +67,9 @@
 //! ```
 //! # #[cfg(feature = "heapless")]
 //! # {
-//! use aes_gcm::{Aes256Gcm, Key, Nonce}; // Or `Aes128Gcm`
-//! use aes_gcm::aead::{AeadInPlace, NewAead};
-//! use aes_gcm::aead::heapless::Vec;
+//! use mc_oblivious_aes_gcm::{Aes256Gcm, Key, Nonce}; // Or `Aes128Gcm`
+//! use mc_oblivious_aes_gcm::aead::{AeadInPlace, NewAead};
+//! use mc_oblivious_aes_gcm::aead::heapless::Vec;
 //!
 //! let key = Key::from_slice(b"an example very very secret key.");
 //! let cipher = Aes256Gcm::new(key);
@@ -96,14 +96,22 @@
 //! [3]: https://research.nccgroup.com/2020/02/26/public-report-rustcrypto-aes-gcm-and-chacha20poly1305-implementation-review/
 //! [4]: https://www.mobilecoin.com/
 
-#![no_std]
+#![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![doc(
-    html_logo_url = "https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg",
-    html_favicon_url = "https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg"
+    html_logo_url = "https://avatars.githubusercontent.com/u/73257032?s=400&u=6b0eb2dc706116234b190b40f3cbbf82c3e9118b&v=4"
 )]
 #![deny(unsafe_code)]
 #![warn(missing_docs, rust_2018_idioms)]
+
+#[cfg(all(feature = "zeroize", feature = "alloc", not(feature = "std")))]
+extern crate alloc;
+
+#[cfg(all(feature = "zeroize", any(feature = "alloc", feature = "std")))]
+mod ct;
+
+#[cfg(all(feature = "zeroize", any(feature = "alloc", feature = "std")))]
+pub use crate::ct::{CtAeadDecrypt, CtDecryptResult};
 
 pub use aead::{self, AeadCore, AeadInPlace, Error, NewAead};
 
