@@ -7,8 +7,10 @@ extern crate hex_literal;
 mod common;
 
 use self::common::TestVector;
-use mc_oblivious_aes_gcm::aead::{generic_array::GenericArray, Aead, NewAead, Payload};
-use mc_oblivious_aes_gcm::Aes128Gcm;
+use mc_oblivious_aes_gcm::{
+    aead::{generic_array::GenericArray, Aead, NewAead, Payload},
+    Aes128Gcm,
+};
 
 /// NIST CAVS vectors
 ///
