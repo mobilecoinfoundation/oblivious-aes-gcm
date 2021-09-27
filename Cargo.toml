@@ -1,6 +1,6 @@
 [package]
 name = "mc-oblivious-aes-gcm"
-version = "0.9.4"
+version = "0.9.5"
 description = """
 WARNING: This crate is not intended for general use, you should use the official RustCrypto crate instead.
 
