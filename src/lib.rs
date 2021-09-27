@@ -1,3 +1,14 @@
+//!
+//! # WARNING
+//!
+//! You should use the [`aes-gcm`](https://github.com/RustCrypto/AEADs) crate,
+//! not this one. This crate is a patch/fork of the execellent RustCrypto crate
+//! to support a very, very niche use-case for MobileCoin, and as such it's
+//! maintenance and security are necessarily going to lag behind that of
+//! RustCrypto's crate.
+//!
+//! # Original README
+//!
 //! AES-GCM: [Authenticated Encryption and Associated Data (AEAD)][1] cipher
 //! based on AES in [Galois/Counter Mode][2].
 //!
@@ -15,13 +26,14 @@
 //!
 //! ## Security Notes
 //!
-//! This crate has received one [security audit by NCC Group][3], with no significant
-//! findings. We would like to thank [MobileCoin][4] for funding the audit.
+//! This crate has received one [security audit by NCC Group][3], with no
+//! significant findings. We would like to thank [MobileCoin][4] for funding the
+//! audit.
 //!
-//! All implementations contained in the crate are designed to execute in constant
-//! time, either by relying on hardware intrinsics (i.e. AES-NI and CLMUL on
-//! x86/x86_64), or using a portable implementation which is only constant time
-//! on processors which implement constant-time multiplication.
+//! All implementations contained in the crate are designed to execute in
+//! constant time, either by relying on hardware intrinsics (i.e. AES-NI and
+//! CLMUL on x86/x86_64), or using a portable implementation which is only
+//! constant time on processors which implement constant-time multiplication.
 //!
 //! It is not suitable for use on processors with a variable-time multiplication
 //! operation (e.g. short circuit on multiply-by-zero / multiply-by-one, such as
