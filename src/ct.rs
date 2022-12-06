@@ -5,15 +5,13 @@ use aead::AeadInPlace;
 use cipher::{
     consts::U16,
     generic_array::{ArrayLength, GenericArray},
-    Block, BlockCipher, BlockEncrypt, StreamCipher,
+    BlockCipher, BlockEncrypt, BlockSizeUser, StreamCipherCore,
 };
 use subtle::{Choice, ConditionallySelectable, ConstantTimeEq};
 use zeroize::Zeroize;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
-
-use aes::NewBlockCipher;
 
 /// API for Aead in-place decryption which is constant-time with respect to
 /// the mac check failing
@@ -74,8 +72,7 @@ impl From<CtDecryptResult> for bool {
 
 impl<Aes, NonceSize> CtAeadDecrypt for AesGcm<Aes, NonceSize>
 where
-    Aes: BlockCipher<BlockSize = U16> + BlockEncrypt + NewBlockCipher,
-    Aes::ParBlocks: ArrayLength<Block<Aes>>,
+    Aes: BlockCipher + BlockSizeUser<BlockSize = U16> + BlockEncrypt,
     NonceSize: ArrayLength<u8>,
 {
     /// A constant time version of the original
@@ -93,17 +90,16 @@ where
             return CtDecryptResult(Choice::from(0));
         }
 
+        let (ctr, mask) = self.init_ctr(nonce);
+
         // TODO(tarcieri): interleave encryption with GHASH
         // See: <https://github.com/RustCrypto/AEADs/issues/74>
-        let mut expected_tag = self.compute_tag(associated_data, buffer);
-        let mut ctr = self.init_ctr(nonce);
+        let expected_tag = self.compute_tag(mask, associated_data, buffer);
         let mut ciphertext = Vec::with_capacity(len);
         ciphertext.extend_from_slice(buffer);
+        ctr.apply_keystream_partial(ciphertext.as_mut_slice().into());
 
-        ctr.apply_keystream(expected_tag.as_mut_slice());
-        ctr.apply_keystream(&mut ciphertext);
-
-        let result = expected_tag.ct_eq(&tag);
+        let result = expected_tag.ct_eq(tag);
 
         // Conditionally copy the actual plaintext _only_ if the tag verified
         // correctly, in order to increase misuse resistance and reduce attack

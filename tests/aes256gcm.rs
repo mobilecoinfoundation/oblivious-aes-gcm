@@ -1,16 +1,15 @@
-//! AES-256-GCM tests
-
-#[macro_use]
-extern crate hex_literal;
+//! AES-256-auth tag tests
 
 #[macro_use]
 mod common;
 
 use self::common::TestVector;
 use mc_oblivious_aes_gcm::{
-    aead::{generic_array::GenericArray, Aead, NewAead, Payload},
+    aead::{generic_array::GenericArray, Aead, KeyInit, Payload},
     Aes256Gcm,
 };
+
+use hex_literal::hex;
 
 /// NIST CAVS vectors
 ///
