@@ -1,6 +1,6 @@
 [package]
 name = "mc-oblivious-aes-gcm"
-version = "0.10.1"
+version = "0.11.1"
 description = """
 WARNING: This crate is not intended for general use, you should use the official RustCrypto crate instead.
 
@@ -10,33 +10,39 @@ authors = [
     "MobileCoin",
     "RustCrypto Developers"
 ]
-edition = "2021"
+edition = "2024"
 license = "Apache-2.0 OR MIT"
 readme = "README.md"
 documentation = "https://docs.rs/mc-oblivious-aes-gcm"
 repository = "https://github.com/mobilecoinfoundation/oblivious-aes-gcm"
+rust-version = "1.85"
 
 [dependencies]
-aead = { version = "0.5", default-features = false }
-aes = { version = "0.8", optional = true }
-cipher = "0.4"
-ctr = "0.9"
-ghash = { version = "0.5", default-features = false }
+aead = { version = "0.6", default-features = false }
+cipher = "0.5"
+ctr = "0.10"
+ctutils = "0.4"
+ghash = { version = "0.6", default-features = false }
 subtle = { version = "2", default-features = false }
+
+# optional dependencies
+aes = { version = "0.9", optional = true }
 zeroize = { version = "1", optional = true, default-features = false }
 
 [dev-dependencies]
-aead = { version = "0.5", features = ["dev"], default-features = false }
-hex-literal = "0.3"
+aead = { version = "0.6", features = ["alloc", "dev"], default-features = false }
+hex-literal = "1"
 
 [features]
-default   = ["aes", "alloc", "getrandom"]
-std       = ["aead/std", "alloc"]
-alloc     = ["aead/alloc"]
+default = ["aes", "alloc", "getrandom"]
+alloc = ["aead/alloc"]
+
+arrayvec = ["aead/arrayvec"]
+bytes = ["aead/bytes"]
 getrandom = ["aead/getrandom"]
-heapless  = ["aead/heapless"]
-stream    = ["aead/stream"]
+hazmat = []
+rand_core = ["aead/rand_core"]
+zeroize = ["dep:zeroize", "aes?/zeroize", "ghash/zeroize"]
 
 [package.metadata.docs.rs]
 all-features = true
-rustdoc-args = ["--cfg", "docsrs"]
