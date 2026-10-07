@@ -3,9 +3,12 @@
 //! Vectors taken from NIST CAVS vectors' `gcmEncryptExtIV128.rsp` file:
 //! <https://csrc.nist.gov/Projects/cryptographic-algorithm-validation-program/CAVP-TESTING-BLOCK-CIPHER-MODES>
 
+#![cfg(all(feature = "aes", feature = "alloc"))]
+#![allow(clippy::unwrap_used, reason = "tests")]
+
 use aead::{
-    generic_array::{typenum, GenericArray},
     Aead, KeyInit,
+    array::{Array, typenum},
 };
 use aes::Aes128;
 use hex_literal::hex;
@@ -32,7 +35,7 @@ mod ivlen8 {
         let plaintext = hex!("8cfa255530c6fbc19d51bd4aeb39c91b");
 
         let ciphertext = Aes128GcmWith8BitNonce::new(&key.into())
-            .encrypt(GenericArray::from_slice(&nonce), &plaintext[..])
+            .encrypt(&Array(nonce), &plaintext[..])
             .unwrap();
 
         let (ct, tag) = ciphertext.split_at(ciphertext.len() - 16);
@@ -67,7 +70,7 @@ mod ivlen1024 {
         let plaintext = hex!("705da82292143d2c949dc4ba014f6396");
 
         let ciphertext = Aes128GcmWith1024BitNonce::new(&key.into())
-            .encrypt(GenericArray::from_slice(&nonce), &plaintext[..])
+            .encrypt(&Array(nonce), &plaintext[..])
             .unwrap();
 
         let (ct, tag) = ciphertext.split_at(ciphertext.len() - 16);

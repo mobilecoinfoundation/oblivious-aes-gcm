@@ -1,24 +1,23 @@
 //! Extra constant-time decryption API.
 
-use crate::{AesGcm, Tag, A_MAX, C_MAX};
-use aead::AeadInPlace;
+use crate::{A_MAX, AesGcm, P_MAX, Tag};
+use aead::AeadInOut;
 use cipher::{
+    BlockCipherEncrypt, BlockSizeUser, StreamCipherCore,
+    array::{Array, ArraySize},
     consts::U16,
-    generic_array::{ArrayLength, GenericArray},
-    BlockCipher, BlockEncrypt, BlockSizeUser, StreamCipherCore,
 };
 use subtle::{Choice, ConditionallySelectable, ConstantTimeEq};
 use zeroize::Zeroize;
 
-#[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
 
 /// API for Aead in-place decryption which is constant-time with respect to
 /// the mac check failing
 ///
-/// This is meant to extend the AeadInPlace trait and be implemented by those
+/// This is meant to extend the `AeadInOut` trait and be implemented by those
 /// AEAD's which have a constant-time decrypt operation.
-pub trait CtAeadDecrypt: AeadInPlace {
+pub trait CtAeadDecrypt: AeadInOut {
     /// Decrypt a buffer using given aead nonce, validating associated data
     /// under the mac (tag).
     ///
@@ -32,10 +31,10 @@ pub trait CtAeadDecrypt: AeadInPlace {
     /// before it is discarded.
     fn ct_decrypt_in_place_detached(
         &self,
-        nonce: &GenericArray<u8, Self::NonceSize>,
+        nonce: &Array<u8, Self::NonceSize>,
         associated_data: &[u8],
         buffer: &mut [u8],
-        tag: &GenericArray<u8, Self::TagSize>,
+        tag: &Array<u8, Self::TagSize>,
     ) -> CtDecryptResult;
 }
 
@@ -70,23 +69,24 @@ impl From<CtDecryptResult> for bool {
     }
 }
 
-impl<Aes, NonceSize> CtAeadDecrypt for AesGcm<Aes, NonceSize>
+impl<Aes, NonceSize, TagSize> CtAeadDecrypt for AesGcm<Aes, NonceSize, TagSize>
 where
-    Aes: BlockCipher + BlockSizeUser<BlockSize = U16> + BlockEncrypt,
-    NonceSize: ArrayLength<u8>,
+    Aes: BlockSizeUser<BlockSize = U16> + BlockCipherEncrypt,
+    NonceSize: ArraySize,
+    TagSize: crate::TagSize,
 {
     /// A constant time version of the original
     /// https://docs.rs/aes-gcm/0.6.0/src/aes_gcm/lib.rs.html#251
     fn ct_decrypt_in_place_detached(
         &self,
-        nonce: &GenericArray<u8, NonceSize>,
+        nonce: &Array<u8, NonceSize>,
         associated_data: &[u8],
         buffer: &mut [u8],
-        tag: &Tag,
+        tag: &Tag<TagSize>,
     ) -> CtDecryptResult {
         let len = buffer.len();
 
-        if len as u64 > C_MAX || associated_data.len() as u64 > A_MAX {
+        if len as u64 > P_MAX || associated_data.len() as u64 > A_MAX {
             return CtDecryptResult(Choice::from(0));
         }
 
@@ -99,7 +99,7 @@ where
         ciphertext.extend_from_slice(buffer);
         ctr.apply_keystream_partial(ciphertext.as_mut_slice().into());
 
-        let result = expected_tag.ct_eq(tag);
+        let result = expected_tag[..TagSize::to_usize()].ct_eq(tag.as_slice());
 
         // Conditionally copy the actual plaintext _only_ if the tag verified
         // correctly, in order to increase misuse resistance and reduce attack
